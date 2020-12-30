@@ -13,7 +13,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export { TextTrackType, FilterType, DRMType };
+const {
+  ExoPlayerCache
+} = NativeModules;
+
+export { 
+  TextTrackType,
+  FilterType,
+  DRMType,
+  ExoPlayerCache
+};
 
 export default class Video extends Component {
 
