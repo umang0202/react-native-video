@@ -70,6 +70,7 @@ public class ReactExoplayerViewManager extends ViewGroupManager<ReactExoplayerVi
     private static final String PROP_SELECTED_VIDEO_TRACK_VALUE = "value";
     private static final String PROP_HIDE_SHUTTER_VIEW = "hideShutterView";
     private static final String PROP_CONTROLS = "controls";
+    private static final String PROP_USE_CACHE = "useCache";
 
     private ReactExoplayerConfig config;
 
@@ -311,6 +312,11 @@ public class ReactExoplayerViewManager extends ViewGroupManager<ReactExoplayerVi
     @ReactProp(name = PROP_CONTROLS, defaultBoolean = false)
     public void setControls(final ReactExoplayerView videoView, final boolean controls) {
         videoView.setControls(controls);
+    }
+
+    @ReactProp(name = PROP_USE_CACHE, defaultBoolean = false)
+    public void setUseCache(final ReactExoplayerView videoView, final boolean useCache) {
+        videoView.setUseCache(useCache);
     }
 
     @ReactProp(name = PROP_BUFFER_CONFIG)
