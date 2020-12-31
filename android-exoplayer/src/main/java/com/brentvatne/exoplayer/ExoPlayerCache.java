@@ -50,36 +50,42 @@ public class ExoPlayerCache extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getCacheStats (final Promise promise) {
         WritableMap cacheStats = new WritableNativeMap();
-        if(videoCache != null) {
-            cacheStats.putString("cacheFolder", cacheFolder.getPath());
+        try {
+            if(videoCache != null) {
+                cacheStats.putString("cacheFolder", cacheFolder.getPath());
 
-            long cacheSpace = videoCache.getCacheSpace();
-            cacheStats.putDouble("cacheSpace", (double)cacheSpace);
+                long cacheSpace = videoCache.getCacheSpace();
+                cacheStats.putDouble("cacheSpace", (double)cacheSpace);
 
-            WritableArray entries = new WritableNativeArray();
-            for(String key : videoCache.getKeys()) {
-                WritableMap entry = new WritableNativeMap();
-                entry.putString("key", key);
+                WritableArray entries = new WritableNativeArray();
+                for(String key : videoCache.getKeys()) {
+                    WritableMap entry = new WritableNativeMap();
+                    entry.putString("key", key);
 
-                WritableArray cachedSpans = new WritableNativeArray();
-                for(CacheSpan cachedSpan : videoCache.getCachedSpans(key)) {
-                    WritableMap cachedSpanMap = new WritableNativeMap();
-                    cachedSpanMap.putBoolean("isCached", cachedSpan.isCached);
-                    cachedSpanMap.putDouble("length", (double)cachedSpan.length);
-                    cachedSpanMap.putDouble("position", (double)cachedSpan.position);
+                    WritableArray cachedSpans = new WritableNativeArray();
+                    for(CacheSpan cachedSpan : videoCache.getCachedSpans(key)) {
+                        WritableMap cachedSpanMap = new WritableNativeMap();
+                        cachedSpanMap.putBoolean("isCached", cachedSpan.isCached);
+                        cachedSpanMap.putDouble("length", (double)cachedSpan.length);
+                        cachedSpanMap.putDouble("position", (double)cachedSpan.position);
 
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-                    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                    cachedSpanMap.putString("lastTouch", dateFormat.format(new java.util.Date(cachedSpan.lastTouchTimestamp)));
+                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+                        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                        cachedSpanMap.putString("lastTouch", dateFormat.format(new java.util.Date(cachedSpan.lastTouchTimestamp)));
 
-                    cachedSpans.pushMap(cachedSpanMap);
+                        cachedSpans.pushMap(cachedSpanMap);
+                    }
+                    entry.putArray("cachedSpans", cachedSpans);
+
+                    entries.pushMap(entry);
                 }
-                entry.putArray("cachedSpans", cachedSpans);
-
-                entries.pushMap(entry);
+                cacheStats.putArray("entries", entries);
             }
-            cacheStats.putArray("entries", entries);
+        } catch (Exception e) {
+            promise.reject("getCacheStats error", e.getMessage());
+            return;
         }
+
         promise.resolve(cacheStats);
     }
 

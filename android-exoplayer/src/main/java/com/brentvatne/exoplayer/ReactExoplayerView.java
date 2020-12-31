@@ -496,49 +496,61 @@ class ReactExoplayerView extends FrameLayout implements
     private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
         int type = Util.inferContentType(!TextUtils.isEmpty(overrideExtension) ? "." + overrideExtension
                 : uri.getLastPathSegment());
+
+        MediaSource mediaSource = null;
+
         if(this.useCache && type == C.TYPE_OTHER) {
+            try {
+                Cache videoCache = ExoPlayerCache.getVideoCache(getContext());
+                DataSource.Factory cacheDataSourceFactory = new CacheDataSourceFactory(videoCache, mediaDataSourceFactory);
 
-            Cache videoCache = ExoPlayerCache.getVideoCache(getContext());
-            DataSource.Factory cacheDataSourceFactory = new CacheDataSourceFactory(videoCache, mediaDataSourceFactory);
+                mediaSource = new ProgressiveMediaSource.Factory(
+                        cacheDataSourceFactory
+                ).setLoadErrorHandlingPolicy(
+                        config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
+                ).createMediaSource(uri);
+            } catch (Exception e) { }
+        }
 
-            return new ProgressiveMediaSource.Factory(
-                    cacheDataSourceFactory
-            ).setLoadErrorHandlingPolicy(
-                    config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
-            ).createMediaSource(uri);
-        } else {
+        if(mediaSource == null) {
             switch (type) {
                 case C.TYPE_SS:
-                    return new SsMediaSource.Factory(
+                    mediaSource = new SsMediaSource.Factory(
                             new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
                             buildDataSourceFactory(false)
                     ).setLoadErrorHandlingPolicy(
                             config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
                     ).createMediaSource(uri);
+                    break;
                 case C.TYPE_DASH:
-                    return new DashMediaSource.Factory(
+                    mediaSource = new DashMediaSource.Factory(
                             new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
                             buildDataSourceFactory(false)
                     ).setLoadErrorHandlingPolicy(
                             config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
                     ).createMediaSource(uri);
+                    break;
                 case C.TYPE_HLS:
-                    return new HlsMediaSource.Factory(
+                    mediaSource = new HlsMediaSource.Factory(
                             mediaDataSourceFactory
                     ).setLoadErrorHandlingPolicy(
                             config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
                     ).createMediaSource(uri);
+                    break;
                 case C.TYPE_OTHER:
-                    return new ProgressiveMediaSource.Factory(
+                    mediaSource = new ProgressiveMediaSource.Factory(
                             mediaDataSourceFactory
                     ).setLoadErrorHandlingPolicy(
                             config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
                     ).createMediaSource(uri);
+                    break;
                 default: {
                     throw new IllegalStateException("Unsupported type: " + type);
                 }
             }
         }
+
+        return mediaSource;
     }
 
     private ArrayList<MediaSource> buildTextSources() {
