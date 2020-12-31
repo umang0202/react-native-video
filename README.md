@@ -1,3 +1,73 @@
+## [fork] ExoPlayer with cache
+
+This fork adds caching feature to react-native-video component for Android (ExoPlayer mode only)
+
+To enable caching, just add the `useCache` prop to the `Video` component:
+```javascript
+
+  render() {
+    return (
+      <Video
+        ...
+        useCache={true}
+      />
+    )
+  }
+```
+
+If `useCache` prop is set, cache will be used for all non-streamed content (ie. except for Microsoft SmoothSteaming, DASH, HLS)
+
+Caching is implemented using SimpleCache class with LRU evictor.
+
+By default, cache max size is 100MB and will store files to `${ExternalCacheDir}/exoplayercache` subfolder but this config can be overriden using dedicated exported `ExoPlayerCache.initializeCache` method:
+
+```javascript
+import { ExoPlayerCache } from 'react-native-video'
+
+...
+
+ExoPlayerCache.initializeCache(cacheChildFolder, cacheMaxSize)
+
+```
+
+Note: of course this method should be called quite early, otherwise cache will be initialized with default values the first time a `<Video/>` with `useCache` prop is rendered.
+
+For debugging purposes, a `getCacheStats()` method can be called to retrive some stats about the current state of the cache.
+
+```javascript
+import { ExoPlayerCache } from 'react-native-video'
+
+...
+
+ExoPlayerCache.getCacheStats()
+  .then(cacheStats => {
+    console.log(cacheStats)
+  })
+```
+
+Sample cacheStats output:
+```
+{
+  "entries": [ // Array of cached contents
+    {
+      "cachedSpans": [ // Array of cached segments
+        {
+          "lastTouch": "2020-12-31T11:25:18Z",
+          "position": 0,
+          "length": 5242880,
+          "isCached": true
+        },
+        ...
+      ],
+      "key": "https://domain.com/video.mp4" // content url
+    },
+    ...
+  ],
+  "cacheSpace": 38465791, // total cache space
+  "cacheFolder": "xxx/exoplayercache" // cache folder
+}
+```
+
 ## react-native-video
 
 A `<Video>` component for react-native, as seen in
