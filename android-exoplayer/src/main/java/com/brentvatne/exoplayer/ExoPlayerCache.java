@@ -26,7 +26,7 @@ import androidx.annotation.NonNull;
 
 public class ExoPlayerCache extends ReactContextBaseJavaModule {
 
-    private static String DEFAULT_CACHE_CHILD_FOLDER = "jowplayercache";
+    private static String DEFAULT_CACHE_CHILD_FOLDER = "exoplayercache";
     private static long DEFAULT_CACHE_MAX_SIZE = 100 * 1024 * 1024;
 
     private static ExoDatabaseProvider exoDatabaseProvider = null;
