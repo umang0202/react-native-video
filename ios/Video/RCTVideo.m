@@ -311,9 +311,12 @@ static int const RCTVideoUnset = -1;
         *stop = YES;
       }
     }];
-    Float64 playableDuration = CMTimeGetSeconds(CMTimeRangeGetEnd(effectiveTimeRange));
-    if (playableDuration > 0) {
-      return [NSNumber numberWithFloat:playableDuration];
+    CMTime endTime = CMTimeRangeGetEnd(effectiveTimeRange);
+    if (CMTIME_IS_VALID(endTime) && !CMTIME_IS_POSITIVE_INFINITY(endTime)) {
+      Float64 playableDuration = CMTimeGetSeconds(endTime);
+      if (playableDuration > 0) {
+        return [NSNumber numberWithFloat:playableDuration];
+      }
     }
   }
   return [NSNumber numberWithInteger:0];
