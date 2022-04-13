@@ -512,49 +512,51 @@ class ReactExoplayerView extends FrameLayout implements
 
                 mediaSource = new ProgressiveMediaSource.Factory(
                         cacheDataSourceFactory
-                ).setLoadErrorHandlingPolicy(
+                ).setLoadErrorHandlingPolicy(config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
+                ).createMediaSource(uri);
+            } catch (Exception e) { }
+        }
 
 
         if(mediaSource == null) {
             switch (type) {
-                case C.TYPE_SS:
-                    mediaSource = new SsMediaSource.Factory(
-                            new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
-                            buildDataSourceFactory(false)
-                    ).setLoadErrorHandlingPolicy(
-                            config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
-                    ).createMediaSource(uri);
-                    break;
-                case C.TYPE_DASH:
-                    mediaSource = new DashMediaSource.Factory(
-                            new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
-                            buildDataSourceFactory(false)
-                    ).setLoadErrorHandlingPolicy(
-                            config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
-                    ).createMediaSource(uri);
-                    break;
-                case C.TYPE_HLS:
-                    mediaSource = new HlsMediaSource.Factory(
-                            mediaDataSourceFactory
-                    ).setLoadErrorHandlingPolicy(
-                            config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
-                    ).createMediaSource(uri);
-                    break;
-                case C.TYPE_OTHER:
-                    mediaSource = new ProgressiveMediaSource.Factory(
-                            mediaDataSourceFactory
-                    ).setLoadErrorHandlingPolicy(
-                            config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
-                    ).createMediaSource(uri);
-                    break;
-                default: {
-                    throw new IllegalStateException("Unsupported type: " + type);
-                }
+            case C.TYPE_SS:
+                return new SsMediaSource.Factory(
+                        new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
+                        buildDataSourceFactory(false)
+                ).setDrmSessionManager(drmSessionManager)
+                 .setLoadErrorHandlingPolicy(
+                        config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
+                ).createMediaSource(uri);
+            case C.TYPE_DASH:
+                return new DashMediaSource.Factory(
+                        new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
+                        buildDataSourceFactory(false)
+                ).setDrmSessionManager(drmSessionManager)
+                 .setLoadErrorHandlingPolicy(
+                        config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
+                ).createMediaSource(uri);
+            case C.TYPE_HLS:
+                return new HlsMediaSource.Factory(
+                        mediaDataSourceFactory
+                ).setDrmSessionManager(drmSessionManager)
+                 .setLoadErrorHandlingPolicy(
+                        config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
+                ).createMediaSource(uri);
+            case C.TYPE_OTHER:
+                return new ProgressiveMediaSource.Factory(
+                        mediaDataSourceFactory
+                ).setDrmSessionManager(drmSessionManager)
+                 .setLoadErrorHandlingPolicy(
+                        config.buildLoadErrorHandlingPolicy(minLoadRetryCount)
+                ).createMediaSource(uri);
+            default: {
+                throw new IllegalStateException("Unsupported type: " + type);
             }
         }
 
-        return mediaSource;
     }
+}
 
     private ArrayList<MediaSource> buildTextSources() {
         ArrayList<MediaSource> textSources = new ArrayList<>();
