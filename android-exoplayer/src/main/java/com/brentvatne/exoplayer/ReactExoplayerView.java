@@ -556,7 +556,7 @@ class ReactExoplayerView extends FrameLayout implements
         }
 
     }
-    return mediaSource
+    return mediaSource;
 }
 
     private ArrayList<MediaSource> buildTextSources() {
