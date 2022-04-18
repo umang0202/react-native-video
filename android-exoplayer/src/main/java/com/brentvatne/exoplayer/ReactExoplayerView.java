@@ -621,7 +621,7 @@ class ReactExoplayerView extends FrameLayout implements
                 player.setPlayWhenReady(true);
             }
         } else {
-            player.setPlayWhenReady(false);
+            player.setPlayWhenReady(true);
         }
     }
 
