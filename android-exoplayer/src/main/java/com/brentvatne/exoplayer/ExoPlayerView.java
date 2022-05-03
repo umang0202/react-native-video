@@ -13,11 +13,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.video.VideoListener;
+import com.google.android.exoplayer2.Player.Listener;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
@@ -25,6 +25,9 @@ import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.SubtitleView;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.video.VideoSize;
+
 
 import java.util.List;
 
@@ -133,8 +136,8 @@ public final class ExoPlayerView extends FrameLayout {
             return;
         }
         if (this.player != null) {
-            this.player.removeTextOutput(componentListener);
-            this.player.removeVideoListener(componentListener);
+            // this.player.removeTextOutput(componentListener);
+            // this.player.removeVideoListener(componentListener);
             this.player.removeListener(componentListener);
             clearVideoView();
         }
@@ -142,9 +145,9 @@ public final class ExoPlayerView extends FrameLayout {
         shutterView.setVisibility(VISIBLE);
         if (player != null) {
             setVideoView();
-            player.addVideoListener(componentListener);
             player.addListener(componentListener);
-            player.addTextOutput(componentListener);
+            player.addListener(componentListener);
+            // player.addTextOutput(componentListener);
         }
     }
 
@@ -214,8 +217,8 @@ public final class ExoPlayerView extends FrameLayout {
         layout.invalidateAspectRatio();
     }
 
-    private final class ComponentListener implements VideoListener,
-            TextOutput, ExoPlayer.EventListener {
+    private final class ComponentListener implements Player.Listener,
+            TextOutput {
 
         // TextRenderer.Output implementation
 
@@ -227,9 +230,9 @@ public final class ExoPlayerView extends FrameLayout {
         // SimpleExoPlayer.VideoListener implementation
 
         @Override
-        public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+        public void onVideoSizeChanged(VideoSize videoSize) {
             boolean isInitialRatio = layout.getAspectRatio() == 0;
-            layout.setAspectRatio(height == 0 ? 1 : (width * pixelWidthHeightRatio) / height);
+            layout.setAspectRatio(videoSize.height == 0 ? 1 : (videoSize.width * videoSize.pixelWidthHeightRatio) / videoSize.height);
 
             // React native workaround for measuring and layout on initial load.
             if (isInitialRatio) {
@@ -255,7 +258,7 @@ public final class ExoPlayerView extends FrameLayout {
         }
 
         @Override
-        public void onPlayerError(ExoPlaybackException e) {
+        public void onPlayerError(PlaybackException e) {
             // Do nothing.
         }
 
@@ -265,7 +268,7 @@ public final class ExoPlayerView extends FrameLayout {
         }
 
         @Override
-        public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+        public void onTimelineChanged(Timeline timeline, int reason) {
             // Do nothing.
         }
 

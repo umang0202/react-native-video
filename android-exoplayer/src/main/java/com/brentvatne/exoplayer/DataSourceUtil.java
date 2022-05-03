@@ -87,7 +87,7 @@ public class DataSourceUtil {
         OkHttpDataSourceFactory okHttpDataSourceFactory = new OkHttpDataSourceFactory(client, getUserAgent(context), bandwidthMeter);
 
         if (requestHeaders != null)
-            okHttpDataSourceFactory.getDefaultRequestProperties().set(requestHeaders);
+            okHttpDataSourceFactory.setDefaultRequestProperties(requestHeaders);
 
         return okHttpDataSourceFactory;
     }
